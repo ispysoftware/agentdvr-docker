@@ -89,6 +89,14 @@ services:
 
 <strong>Note:</strong> In the case of Raspberry Pi and other low power ARM SBCs, please hit the WebUI URL atleast 30 seconds after the container deployment. A few seconds maybe required by the ARM processors to kick start the needed services. Before this time you may not get response in the web browser. Also at the first time, you may have to refresh the WebUI a couple of times for the UI to get fully loaded.
 
+<strong>Linux host note: </strong> If you experiencing sound playback issues on Ubuntu server host, i.e. Action sound won't play through server's speaker, add these lines to docker-compose.yml:
+<pre><code>
+        group_add:
+          - audio
+        devices:
+          - /dev/snd:/dev/snd
+</code></pre>
+ 
 <h3>docker cli ( <a href="https://docs.docker.com/engine/reference/commandline/cli/" rel="nofollow noopener">click here for more info</a>) </h3>
 <pre><code>docker run -d \
   --name=ispyagentdvr \
