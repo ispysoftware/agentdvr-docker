@@ -4,6 +4,8 @@ FROM debian:bookworm-slim
 ARG DEBIAN_FRONTEND=noninteractive
 ARG TZ=Asia/Dhaka
 
+ENV AGENTDVR_HAS_COTURN=true
+
 RUN mkdir /AgentDVR
 
 COPY --chmod=555 dependency.sh /AgentDVR
