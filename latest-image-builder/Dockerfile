@@ -38,6 +38,9 @@ RUN apt-get update && \
 
 COPY turnserver.conf /etc/turnserver.conf
 
+# Set permissions and ownership
+RUN chown turnserver:turnserver /etc/turnserver.conf && chmod 640 /etc/turnserver.conf
+
 #############################################################################
 # 3. Enable and configure coturn
 #############################################################################
