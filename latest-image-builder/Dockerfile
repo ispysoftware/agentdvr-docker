@@ -1,30 +1,57 @@
 # Use DEBIAN BOOKWORM-SLIM
 FROM debian:bookworm-slim
-ARG DEBIAN_FRONTEND=noninteractive 
+
+ARG DEBIAN_FRONTEND=noninteractive
 ARG TZ=Asia/Dhaka
+
 RUN mkdir /AgentDVR
+
 COPY --chmod=555 dependency.sh /AgentDVR
 COPY --chmod=555 setup.sh /AgentDVR
 COPY --chmod=555 ffmpeg.sh /AgentDVR
 COPY --chmod=555 banner.sh /AgentDVR
 COPY --chmod=555 Agent.sh /AgentDVR
 COPY --chmod=444 build-timestamp /AgentDVR
-# Add to source.list
-#RUN bash /AgentDVR/source.sh
 
-# Download and install distro Updates
-#RUN bash /AgentDVR/update.sh
-
-# Download and install dependencies
+# Install dependencies
 RUN bash /AgentDVR/dependency.sh
-	
-# Download/Install iSpy Agent DVR: 
+
+# Download/Install iSpy Agent DVR
 RUN bash /AgentDVR/setup.sh
 
 # Install ffmpeg
 RUN bash /AgentDVR/ffmpeg.sh
 
-RUN apt-get -y --purge --allow-remove-essential remove unzip wget && \ 
+#############################################################################
+# 1. Install coturn
+#############################################################################
+
+RUN apt-get update && \
+    apt-get install -y coturn && \
+    rm -rf /var/lib/apt/lists/*
+
+#############################################################################
+# 2. Copy custom turnserver.conf into the container
+#############################################################################
+# You can create a separate turnserver.conf file with your desired config.
+# An example turnserver.conf is shown below. Adjust paths as needed.
+
+COPY turnserver.conf /etc/turnserver.conf
+
+#############################################################################
+# 3. Enable and configure coturn
+#############################################################################
+# The default Debian package for coturn uses /etc/default/coturn to enable/disable
+# the service. We will enable it, but in Docker, we often run the turnserver
+# manually in the foreground with --no-daemon so it runs in the container.
+
+RUN sed -i 's/#TURNSERVER_ENABLED=.*/TURNSERVER_ENABLED=1/' /etc/default/coturn
+
+#############################################################################
+# 4. Clean up
+#############################################################################
+
+RUN apt-get -y --purge --allow-remove-essential remove unzip wget && \
     apt-get autoremove -y && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* && \
@@ -34,31 +61,32 @@ RUN apt-get -y --purge --allow-remove-essential remove unzip wget && \
     rm -rf /AgentDVR/update.sh && \
     rm -rf /AgentDVR/ffmpeg.sh
 
-# Docker needs to run a TURN server to get webrtc traffic to and from it over forwarded ports from the host
-# These are the default ports. If the ports below are modified here you'll also need to set the ports in XML/Config.xml
-# for example <TurnServerPort>3478</TurnServerPort><TurnServerMinPort>50000</TurnServerMinPort><TurnServerMaxPort>50010</TurnServerMaxPort>
-# The main server port is overridden by creating a text file called port.txt in the root directory containing the port number, eg: 8090
-# To access the UI you must use the local IP address of the host, NOT localhost - for example http://192.168.1.12:8090/
+#############################################################################
+# 5. Expose the necessary ports
+#############################################################################
 
-# Define default environment variables
-ENV PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
-# Fix a memory leak on encoded recording
-ENV MALLOC_TRIM_THRESHOLD_=100000
-
-# Main UI port
+# Main UI port for Agent DVR
 EXPOSE 8090
 
-# HTTPS port
+# HTTPS port (if you need it)
 EXPOSE 443
 
-# STUN server port
+# STUN (UDP) – usually 3478
 EXPOSE 3478/udp
 
-# TURN server UDP port range
-EXPOSE 50000-50010/udp
+# TURN can also listen on TCP or TLS at 3479 if you wish
+# EXPOSE 3479/tcp
 
-# Data volumes
-VOLUME ["/AgentDVR/Media/XML", "/AgentDVR/Media/WebServerRoot/Media", "/AgentDVR/Commands"]
+# TURN relay ports (UDP range)
+EXPOSE 50000-50100/udp
 
-# Define service entrypoint
-CMD ["/AgentDVR/Agent.sh"]
+#############################################################################
+# 6. Run both coturn and Agent DVR
+#############################################################################
+# We must start coturn in the foreground (i.e., with --no-daemon)
+# so that Docker keeps it running. We'll start Agent DVR afterward.
+#
+# NOTE: Docker containers have a single "PID 1" process. We combine both
+# by running turnserver in the background (with &) then exec Agent.sh.
+
+CMD ["/bin/bash", "-c", "turnserver -c /etc/turnserver.conf --no-daemon & exec /AgentDVR/Agent.sh"]
