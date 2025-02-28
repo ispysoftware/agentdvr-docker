@@ -70,11 +70,6 @@ if [ -n "$WEBUI_PORT" ]; then
 fi
 /AgentDVR/banner.sh
 
-# Start Coturn first
-echo "Starting Coturn..."
-service coturn start || turnserver -c /etc/turnserver.conf &
-
-
 DEBUG_MODE=$(echo "${DEBUG_MODE}" | tr '[:upper:]' '[:lower:]')
 if [ "${DEBUG_MODE}" == 'yes' ] || [ "${DEBUG_MODE}" == 'ye' ] || [ "${DEBUG_MODE}" == 't' ] || [ "${DEBUG_MODE}" == 'y' ] || [ "${DEBUG_MODE}" == 'true' ]; then
         if [ -e /AgentDVR/Media/XML/customEntrypoint.sh ]; then
