@@ -31,7 +31,7 @@ on:
   # EXTERNAL TRIGGER: For reliable scheduling via cron-job.org or similar
   # =========================================================================
   repository_dispatch:
-    types: [Docker Build & Publish - Cron Scheduled]
+    types: [Docker Build & Publish - Cron Scheduled, release-published]
 
   # =========================================================================
   # MANUAL TRIGGER: With detailed input options
@@ -182,6 +182,10 @@ env:
   DEFAULT_PLATFORMS: ${{ vars.DEFAULT_PLATFORMS || 'linux/amd64,linux/arm64,linux/arm/v7' }}
   BINARY_BASE_URL: ${{ vars.BINARY_BASE_URL || 'https://files.ispyconnect.com/downloads' }}
   RELEASE_URL: ${{ vars.RELEASE_URL || 'https://www.ispyconnect.com/producthistory?productid=27' }}
+  # Primary version source: reads dbo.Products directly with no origin or edge caching,
+  # so a release-published dispatch fired seconds after UpdateVersion sees the new
+  # version immediately. The download-API URLs below are the (5-minute-cached) fallback.
+  LIVE_VERSION_URL: ${{ vars.LIVE_VERSION_URL || 'https://www.ispyconnect.com/liveversion?productid=27' }}
   # Beta channel lives outside the release-history page: iSpy stopped tagging betas with
   # "(Beta):" there after 7.7.5.0 (24 Jul 2026) and now only exposes them via this API
   # (same endpoint the official linux_setup2.sh uses for USE_BETA=true).
@@ -420,9 +424,20 @@ jobs:
           VERSION_LIMIT="${{ env.VERSION_CHECK_COUNT }}"
           grep -oP '<td[^>]*>\d+\.\d+\.\d+\.\d+</td>' /tmp/releases.html | sed 's/<[^>]*>//g' | head -"$VERSION_LIMIT" > /tmp/versions.txt
 
-          # Resolve both download channels. These are the URLs iSpy's own installer uses,
-          # so they answer even when the release-history page does not.
-          # Prints e.g. https://files.ispyconnect.com/downloads/Agent_Linux64_7_9_3_0.zip
+          # Resolve both release channels. Primary source is /liveversion, which reads
+          # the database directly with no origin or edge caching — a release-published
+          # dispatch fires seconds after UpdateVersion, inside the 5-minute window every
+          # other version surface caches on, so only this endpoint is guaranteed fresh.
+          # Falls back to the download API (5-minute-aligned cache) when unavailable.
+          STABLE_CHANNEL_VERSION=""
+          BETA_CHANNEL_VERSION=""
+          if LIVE_JSON=$(curl -sfL --max-time 20 "${{ env.LIVE_VERSION_URL }}"); then
+            STABLE_CHANNEL_VERSION=$(echo "$LIVE_JSON" | jq -r '.version // empty' 2>/dev/null | grep -E '^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$' || true)
+            BETA_CHANNEL_VERSION=$(echo "$LIVE_JSON" | jq -r '.betaVersion // empty' 2>/dev/null | grep -E '^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$' || true)
+          fi
+
+          # Fallback: the URLs iSpy's own installer uses, so they answer even when the
+          # release-history page does not. Prints e.g. .../Agent_Linux64_7_9_3_0.zip.
           # Returns empty on any curl failure (4xx/5xx/network) so callers skip the splice.
           # Quotes are stripped in-shell rather than by a pipe, so curl's exit status is
           # the command's exit status and the failure branch actually fires.
@@ -431,9 +446,23 @@ jobs:
             dl=$(curl -sfL "$url") || return 0
             echo "${dl//\"/}" | sed -nE 's#.*_([0-9]+)_([0-9]+)_([0-9]+)_([0-9]+)\.zip$#\1.\2.\3.\4#p'
           }
-          STABLE_CHANNEL_VERSION=$(channel_version "${{ env.STABLE_API_URL }}")
-          BETA_CHANNEL_VERSION=$(channel_version "${{ env.BETA_API_URL }}")
-          echo "Download API -- stable: ${STABLE_CHANNEL_VERSION:-<unresolved>}, beta: ${BETA_CHANNEL_VERSION:-<unresolved>}"
+          if [ -z "$STABLE_CHANNEL_VERSION" ]; then
+            echo "::warning::/liveversion unavailable or unparseable -- falling back to the download API (5-minute aligned cache)"
+            # Bridge for sites without /liveversion: a release-published dispatch fires
+            # seconds after UpdateVersion, inside the stale window of the download API's
+            # cache. That cache expires at 5-minute wall-clock boundaries, so waiting
+            # just past the next boundary guarantees a fresh read. Skipped entirely
+            # once /liveversion answers above.
+            if [ "${{ github.event.action }}" == "release-published" ]; then
+              NOW=$(date +%s)
+              WAIT=$(( 300 - NOW % 300 + 15 ))
+              echo "release-published dispatch: waiting ${WAIT}s for the aligned caches to roll over"
+              sleep "$WAIT"
+            fi
+            STABLE_CHANNEL_VERSION=$(channel_version "${{ env.STABLE_API_URL }}")
+            BETA_CHANNEL_VERSION=$(channel_version "${{ env.BETA_API_URL }}")
+          fi
+          echo "Version channels -- stable: ${STABLE_CHANNEL_VERSION:-<unresolved>}, beta: ${BETA_CHANNEL_VERSION:-<unresolved>}"
 
           # Hard-fail only when every source is dead. A silently empty version list
           # disabled all builds for 3 weeks when the release URL started redirecting;
