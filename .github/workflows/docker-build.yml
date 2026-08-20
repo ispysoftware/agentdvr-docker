@@ -217,6 +217,11 @@ env:
   UPDATE_BASE_IMAGE_ENABLED: ${{ vars.UPDATE_BASE_IMAGE_ENABLED || 'false' }}
   # Comma-separated list of versions to exclude from builds (e.g. "7.0.5.0,7.0.6.0")
   EXCLUDE_VERSIONS: ${{ vars.EXCLUDE_VERSIONS || '' }}
+  # Oldest version this pipeline may build. Releases before 7.9.4.0 do not bundle
+  # FFmpeg, and the org base image no longer provides one — building them would
+  # produce images with no FFmpeg at all. Applied at the source (the release list),
+  # so backfills, manual build requests and stable promotion all respect it.
+  MIN_BUILD_VERSION: ${{ vars.MIN_BUILD_VERSION || '7.9.4.0' }}
   # How long the latest version must remain current before stable promotion (e.g. "5d", "7d", "30d", "12h")
   STABLE_PROMOTION_AGE: ${{ vars.STABLE_PROMOTION_AGE || '5d' }}
   # Number of recent upstream versions to scan for missing builds
@@ -519,6 +524,32 @@ jobs:
           # Stable first so that, if both splice, the beta still ends up on top.
           splice_version "$STABLE_CHANNEL_VERSION" "false" "Stable"
           splice_version "$BETA_CHANNEL_VERSION" "true" "Beta"
+
+          # Enforce MIN_BUILD_VERSION: drop anything older from the release list so no
+          # downstream path (auto-check backfill, build-versions validation, stable
+          # promotion) can select a version the current base image cannot support.
+          # The three files are line-aligned, so they are filtered by the same indices.
+          MIN_VER="${{ env.MIN_BUILD_VERSION }}"
+          if [ -n "$MIN_VER" ]; then
+            : > /tmp/versions.new; : > /tmp/dates.new; : > /tmp/beta_status.new
+            i=0
+            while IFS= read -r v; do
+              i=$((i+1))
+              if [ "$(printf '%s\n%s\n' "$v" "$MIN_VER" | sort -V | head -1)" = "$MIN_VER" ]; then
+                echo "$v" >> /tmp/versions.new
+                sed -n "${i}p" /tmp/dates.txt >> /tmp/dates.new
+                sed -n "${i}p" /tmp/beta_status.txt >> /tmp/beta_status.new
+              else
+                echo "Skipping $v -- below version floor $MIN_VER (no bundled FFmpeg)"
+              fi
+            done < /tmp/versions.txt
+            mv /tmp/versions.new /tmp/versions.txt
+            mv /tmp/dates.new /tmp/dates.txt
+            mv /tmp/beta_status.new /tmp/beta_status.txt
+            if [ ! -s /tmp/versions.txt ]; then
+              echo "::warning::No versions at or above the $MIN_VER floor -- nothing is eligible to build yet"
+            fi
+          fi
 
           # Create combined output (version|date|is_beta)
           paste -d'|' /tmp/versions.txt /tmp/dates.txt > /tmp/releases_temp.txt
