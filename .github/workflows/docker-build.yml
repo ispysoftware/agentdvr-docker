@@ -2360,13 +2360,13 @@ jobs:
           # Stable row. The version cell is matched with a closing </td> right after the
           # digits so it cannot also swallow the "<version>-beta" cell below it.
           sed -i -E "s|<td align=\"center\">[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+</td>|<td align=\"center\">${LATEST}</td>|" README.md
-          sed -i -E "s|\"iSpy Agent DVR\" Static version [0-9]+\.[0-9]+\.[0-9]+\.[0-9]+ image|\"iSpy Agent DVR\" Static version ${LATEST} image|" README.md
+          sed -i -E "s|Pinned release [0-9]+\.[0-9]+\.[0-9]+\.[0-9]+|Pinned release ${LATEST}|" README.md
 
           # Beta row. Only touched when a beta is actually ahead of stable; when the
           # beta channel has no live version the row is left as the last published beta.
           if [ -n "$BETA" ]; then
             sed -i -E "s|<td align=\"center\">[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+-beta</td>|<td align=\"center\">${BETA}-beta</td>|" README.md
-            sed -i -E "s|\"iSpy Agent DVR\" [0-9]+\.[0-9]+\.[0-9]+\.[0-9]+ beta release for testing|\"iSpy Agent DVR\" ${BETA} beta release for testing|" README.md
+            sed -i -E "s|Beta release [0-9]+\.[0-9]+\.[0-9]+\.[0-9]+|Beta release ${BETA}|" README.md
           fi
 
           if git diff --quiet README.md; then
