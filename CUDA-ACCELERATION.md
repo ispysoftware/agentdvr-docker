@@ -11,7 +11,7 @@ The recommended pattern is a small overlay image built on top of the published o
 ```dockerfile
 FROM nvidia/cuda:12.9.1-cudnn-runtime-ubuntu24.04 AS cuda
 
-FROM ghcr.io/mekayelanik/ispyagentdvr:latest
+FROM ghcr.io/ispysoftware/agentdvr:latest
 
 COPY --from=cuda /usr/local/cuda /usr/local/cuda
 COPY --from=cuda /usr/lib/x86_64-linux-gnu/libcudnn* /usr/lib/x86_64-linux-gnu/
@@ -47,7 +47,7 @@ services:
       context: .
       dockerfile_inline: |
         FROM nvidia/cuda:12.9.1-cudnn-runtime-ubuntu24.04 AS cuda
-        FROM ghcr.io/mekayelanik/ispyagentdvr:latest
+        FROM ghcr.io/ispysoftware/agentdvr:latest
         COPY --from=cuda /usr/local/cuda /usr/local/cuda
         COPY --from=cuda /usr/lib/x86_64-linux-gnu/libcudnn* /usr/lib/x86_64-linux-gnu/
         ENV PATH="/usr/local/cuda/bin:/usr/local/bin:/usr/bin:/usr/sbin:/sbin:/bin"

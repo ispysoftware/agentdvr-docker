@@ -4,21 +4,16 @@
 </p>
 <p align="center">
   <a href="https://www.gnu.org/licenses/gpl-3.0"><img alt="License: GPLv3" src="https://img.shields.io/badge/License-GPLv3-blue.svg"></a>
-  <a href="https://hub.docker.com/r/mekayelanik/ispyagentdvr"><img alt="Docker Pulls" src="https://img.shields.io/docker/pulls/mekayelanik/ispyagentdvr.svg"></a>
-  <a href="https://hub.docker.com/r/mekayelanik/ispyagentdvr"><img alt="Docker Stars" src="https://img.shields.io/docker/stars/mekayelanik/ispyagentdvr.svg"></a>
-  <a href="https://ghcr.io/mekayelanik/ispyagentdvr"><img alt="GHCR" src="https://img.shields.io/badge/GHCR-ghcr.io%2Fmekayelanik%2Fispyagentdvr-blue"></a>
-  <a href="https://hub.docker.com/r/mekayelanik/ispyagentdvr"><img alt="Platforms" src="https://img.shields.io/badge/Platforms-amd64%20%7C%20arm64%20%7C%20arm%2Fv7-lightgrey"></a>
-  <a href="https://github.com/MekayelAnik/ispyagentdvr-docker/stargazers"><img alt="GitHub Stars" src="https://img.shields.io/github/stars/MekayelAnik/ispyagentdvr-docker"></a>
-  <a href="https://github.com/MekayelAnik/ispyagentdvr-docker/forks"><img alt="GitHub Forks" src="https://img.shields.io/github/forks/MekayelAnik/ispyagentdvr-docker"></a>
-  <a href="https://github.com/MekayelAnik/ispyagentdvr-docker/issues"><img alt="GitHub Issues" src="https://img.shields.io/github/issues/MekayelAnik/ispyagentdvr-docker"></a>
-  <a href="https://github.com/MekayelAnik/ispyagentdvr-docker/commits/main"><img alt="Last Commit" src="https://img.shields.io/github/last-commit/MekayelAnik/ispyagentdvr-docker.svg"></a>
+  <a href="https://hub.docker.com/r/ispysoftware/agentdvr"><img alt="Docker Pulls" src="https://img.shields.io/docker/pulls/ispysoftware/agentdvr.svg"></a>
+  <a href="https://hub.docker.com/r/ispysoftware/agentdvr"><img alt="Docker Stars" src="https://img.shields.io/docker/stars/ispysoftware/agentdvr.svg"></a>
+  <a href="https://ghcr.io/ispysoftware/agentdvr"><img alt="GHCR" src="https://img.shields.io/badge/GHCR-ghcr.io%2Fispysoftware%2Fagentdvr-blue"></a>
+  <a href="https://hub.docker.com/r/ispysoftware/agentdvr"><img alt="Platforms" src="https://img.shields.io/badge/Platforms-amd64%20%7C%20arm64%20%7C%20arm%2Fv7-lightgrey"></a>
+  <a href="https://github.com/ispysoftware/agentdvr-docker/stargazers"><img alt="GitHub Stars" src="https://img.shields.io/github/stars/ispysoftware/agentdvr-docker"></a>
+  <a href="https://github.com/ispysoftware/agentdvr-docker/forks"><img alt="GitHub Forks" src="https://img.shields.io/github/forks/ispysoftware/agentdvr-docker"></a>
+  <a href="https://github.com/ispysoftware/agentdvr-docker/issues"><img alt="GitHub Issues" src="https://img.shields.io/github/issues/ispysoftware/agentdvr-docker"></a>
+  <a href="https://github.com/ispysoftware/agentdvr-docker/commits/main"><img alt="Last Commit" src="https://img.shields.io/github/last-commit/ispysoftware/agentdvr-docker.svg"></a>
 </p>
-<p><strong>DISCLAIMER:</strong> Buy me coffee link below is NOT affiliated in anyway with the main iSpy AgentDVR. The docker image publisher is NOT affiliated with the main iSpy AgentDVR either.</p>
-<p align="center">
-<a href="https://07mekayel07.gumroad.com/coffee" target="_blank">
-<img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" width="217" height="60">
-</a>
-</p>
+<p>This official image is based on the community image originally created and maintained by <a href="https://github.com/MekayelAnik">MD. Mekayel Anik</a>, whose community build remains available at <a href="https://hub.docker.com/r/mekayelanik/ispyagentdvr">mekayelanik/ispyagentdvr</a>.</p>
 <h2>The architectures supported by this image are:</h2>
 <table>
   <thead>
@@ -109,7 +104,7 @@
 <pre><code>---
 services:
   ispyagentdvr:
-    image: mekayelanik/ispyagentdvr:latest
+    image: ispysoftware/agentdvr:latest
     container_name: ispyagentdvr
     environment:
       - PUID=1000
@@ -146,13 +141,13 @@ services:
   -v /path/to/models:/AgentDVR/Media/Models \
   -v /path/to/commands:/AgentDVR/Commands \
   --restart unless-stopped \
-  mekayelanik/ispyagentdvr:latest
+  ispysoftware/agentdvr:latest
 </code></pre>
 <h3>Dedicated local IP using MACVLAN ( <a href="https://docs.docker.com/network/macvlan/" rel="nofollow noopener">docs</a>) </h3>
 <pre><code>---
 services:
   ispyagentdvr:
-    image: ghcr.io/mekayelanik/ispyagentdvr:latest
+    image: ghcr.io/ispysoftware/agentdvr:latest
     container_name: ispyagentdvr
     environment:
       - PUID=1000
@@ -189,7 +184,7 @@ networks:
 <pre><code>---
 services:
   ispyagentdvr:
-    image: ghcr.io/mekayelanik/ispyagentdvr:latest
+    image: ghcr.io/ispysoftware/agentdvr:latest
     container_name: ispyagentdvr
     environment:
       - PUID=1000
@@ -223,13 +218,13 @@ services:
   -v /path/to/models:/AgentDVR/Media/Models \
   -v /path/to/commands:/AgentDVR/Commands \
   --restart unless-stopped \
-  mekayelanik/ispyagentdvr:latest</code></pre>
+  ispysoftware/agentdvr:latest</code></pre>
 <h3>For Nvidia GPUs</h3>
 <p>To get GPU Hardware acceleration from Nvidia, user <strong>MUST INSTALL THE "LATEST" Nvidia Drivers & Nvidia Container Toolkit on the Host Machine/Server/VM/LXC</strong> provided by Nvidia. Instructions for <strong>Nvidia Container Toolkit</strong> can be found here:</p>
 <a href="https://github.com/NVIDIA/nvidia-container-toolkit" rel="nofollow noopener">Nvidia-Container-Toolkit</a>
 <p>We added the necessary environment variable that will utilize all the features available on a GPU on the host. Once Nvidia container runtime is installed on your host you will need to re/create the docker container with the nvidia container runtime `--runtime=nvidia` and add an environment variable `-e NVIDIA_VISIBLE_DEVICES=all` (can also be set to a specific gpu's UUID, this can be discovered by running `nvidia-smi --query-gpu=gpu_name,gpu_uuid --format=csv` ). NVIDIA automatically mounts the GPU and drivers from your host into the AgentDVR docker container.
 </p>
-<p><strong>CUDA AI object detection:</strong> the image ships video HW acceleration only. For GPU object detection (CUDA + cuDNN) build a small overlay image — recipe: <a href="https://github.com/MekayelAnik/ispyagentdvr-docker/blob/main/CUDA-ACCELERATION.md" rel="nofollow noopener">CUDA-ACCELERATION.md</a></p>
+<p><strong>CUDA AI object detection:</strong> the image ships video HW acceleration only. For GPU object detection (CUDA + cuDNN) build a small overlay image — recipe: <a href="https://github.com/ispysoftware/agentdvr-docker/blob/main/CUDA-ACCELERATION.md" rel="nofollow noopener">CUDA-ACCELERATION.md</a></p>
 <h3>For AMD GPUs & iGPUs</h3>
 <p>The following have to be added in docker-compose file/docker-cli cm respectively</p>
 <p><strong>docker compose</strong></p>
@@ -268,8 +263,7 @@ services:
    hevc_service hevc-service rkvdec rkvenc vepu h265e ; do \
   [ -e "/dev/$dev" ] && echo " --device /dev/$dev"; \
  done` 
-  mekayelanik/ispyagentdvr:latest</code></pre>
-<h4>DISCLAIMER: Jellyfin FFMPEG and corresponding ideas were used in this image to enable the HW-Acceleration</h4>
+  ispysoftware/agentdvr:latest</code></pre>
 <h2>Parameters</h2>
 <p>Container images use runtime parameters. These are separated by a colon and indicate <code>&lt;external&gt;:&lt;internal&gt;</code>. For example, <code>-p 8090:80</code> exposes port <code>80</code> inside the container on host port <code>8090</code>. </p>
 <table>
@@ -382,7 +376,7 @@ uid=1000(docker user) gid=1000(docker group) groups=1000(docker group)</code></p
 </ul>
 <h3>Via Docker Run</h3>
 <ul>
-  <li>Update the image: <code>docker pull mekayelanik/ispyagentdvr:latest</code>
+  <li>Update the image: <code>docker pull ispysoftware/agentdvr:latest</code>
   </li>
   <li>Stop the running container: <code>docker stop ispyagentdvr</code>
   </li>
@@ -465,9 +459,9 @@ mv /path/to/recordings/video /ispyagentdvr/media/old</code></pre>
 </p>
 
 <h2>Issues & Requests</h2>
-<p> To submit this Docker image specific issues or requests visit this docker image's Github Link: <a href="https://www.github.com/MekayelAnik/ispyagentdvr-docker" rel="nofollow noopener">https://www.github.com/MekayelAnik/ispyagentdvr-docker</a>
+<p> To submit this Docker image specific issues or requests visit this docker image's Github Link: <a href="https://www.github.com/ispysoftware/agentdvr-docker" rel="nofollow noopener">https://www.github.com/ispysoftware/agentdvr-docker</a>
 </p>
 <p> For iSpy AgentDVR-related issues and requests, please visit: <a href="https://www.reddit.com/r/ispyconnect/" rel="nofollow noopener">https://www.reddit.com/r/ispyconnect/</a>
 </p>
-<p> To have a deeper dive into the custom base image of this container, please visit: <a href="https://github.com/MekayelAnik/ispyagentdvr-base-image" rel="nofollow noopener">https://github.com/MekayelAnik/ispyagentdvr-base-image</a>
+<p> To have a deeper dive into the custom base image of this container, please visit: <a href="https://github.com/ispysoftware/ispyagentdvr-base-image" rel="nofollow noopener">https://github.com/ispysoftware/ispyagentdvr-base-image</a>
 </p>

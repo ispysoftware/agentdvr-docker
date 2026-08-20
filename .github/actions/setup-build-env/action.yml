@@ -72,7 +72,7 @@ runs:
       shell: bash
       run: |
         set -u
-        GHCR_IMAGE="ghcr.io/mekayelanik/base-images/moby/buildkit:master"
+        GHCR_IMAGE="ghcr.io/ispysoftware/base-images/moby/buildkit:master"
         FALLBACK_IMAGE="moby/buildkit:master"
 
         # Retry helper: cmd retried up to N times with exponential backoff

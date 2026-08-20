@@ -72,8 +72,6 @@ on:
         type: choice
         options:
           - 'default (latest)'
-          - 'trixie-slim-default-ffmpeg'
-          - 'bookworm-slim-vlc-jellyfin-ffmpeg'
           - 'custom'
         default: 'default (latest)'
 
@@ -178,9 +176,9 @@ concurrency:
 env:
   # Configuration sourced from repository variables (Settings → Secrets and variables → Actions → Variables)
   # Fallback values used if variables are not set
-  TZ: ${{ vars.TZ || 'Asia/Dhaka' }}
-  DOCKERHUB_REPO: ${{ vars.DOCKERHUB_REPO || 'mekayelanik/ispyagentdvr' }}
-  GHCR_REPO: ${{ vars.GHCR_REPO || 'ghcr.io/mekayelanik/ispyagentdvr' }}
+  TZ: ${{ vars.TZ || 'UTC' }}
+  DOCKERHUB_REPO: ${{ vars.DOCKERHUB_REPO || 'ispysoftware/agentdvr' }}
+  GHCR_REPO: ${{ vars.GHCR_REPO || 'ghcr.io/ispysoftware/agentdvr' }}
   DEFAULT_PLATFORMS: ${{ vars.DEFAULT_PLATFORMS || 'linux/amd64,linux/arm64,linux/arm/v7' }}
   BINARY_BASE_URL: ${{ vars.BINARY_BASE_URL || 'https://files.ispyconnect.com/downloads' }}
   RELEASE_URL: ${{ vars.RELEASE_URL || 'https://www.ispyconnect.com/producthistory?productid=27' }}
@@ -206,7 +204,7 @@ env:
   CP_MAX_IMAGE_AGE_DAYS: ${{ github.event.client_payload.max_image_age_days }}
   VAR_PACKAGE_REFRESH: ${{ vars.PACKAGE_REFRESH_ENABLED }}
   VAR_MAX_IMAGE_AGE_DAYS: ${{ vars.MAX_IMAGE_AGE_DAYS }}
-  DEFAULT_BASE_IMAGE: ${{ vars.DEFAULT_BASE_IMAGE || 'mekayelanik/ispyagentdvr-base-image:latest' }}
+  DEFAULT_BASE_IMAGE: ${{ vars.DEFAULT_BASE_IMAGE || 'ispysoftware/agentdvr-base-image:latest' }}
   # Base image update check: set to 'true' to enable automatic rebuilds when base image changes
   UPDATE_BASE_IMAGE_ENABLED: ${{ vars.UPDATE_BASE_IMAGE_ENABLED || 'false' }}
   # Comma-separated list of versions to exclude from builds (e.g. "7.0.5.0,7.0.6.0")
@@ -664,12 +662,6 @@ jobs:
           case "$BASE_SELECTION" in
             "custom")
               BASE_IMAGE="${CUSTOM_BASE:-$DEFAULT_IMAGE}"
-              ;;
-            "trixie-slim-default-ffmpeg")
-              BASE_IMAGE="mekayelanik/ispyagentdvr-base-image:ispyagentdvr-trixie-slim-default-ffmpeg"
-              ;;
-            "bookworm-slim-vlc-jellyfin-ffmpeg")
-              BASE_IMAGE="mekayelanik/ispyagentdvr-base-image:ispyagentdvr-bookworm-slim-vlc-jellyfin-ffmpeg"
               ;;
             *)
               BASE_IMAGE="$DEFAULT_IMAGE"
@@ -1264,12 +1256,6 @@ jobs:
                 BASE_IMAGE="$DEFAULT_IMAGE"
               fi
               ;;
-            "trixie-slim-default-ffmpeg")
-              BASE_IMAGE="mekayelanik/ispyagentdvr-base-image:ispyagentdvr-trixie-slim-default-ffmpeg"
-              ;;
-            "bookworm-slim-vlc-jellyfin-ffmpeg")
-              BASE_IMAGE="mekayelanik/ispyagentdvr-base-image:ispyagentdvr-bookworm-slim-vlc-jellyfin-ffmpeg"
-              ;;
             *)
               BASE_IMAGE="$DEFAULT_IMAGE"
               ;;
@@ -1360,7 +1346,7 @@ jobs:
           labels: |
             org.opencontainers.image.title=iSpy Agent DVR
             org.opencontainers.image.description=Agent DVR - Professional video surveillance software for Linux, Windows and macOS
-            org.opencontainers.image.vendor=mekayelanik
+            org.opencontainers.image.vendor=iSpy
             org.opencontainers.image.version=${{ matrix.version }}
             org.opencontainers.image.source=https://github.com/${{ github.repository }}
             org.opencontainers.image.documentation=https://www.ispyconnect.com/docs/agent/about
@@ -1393,10 +1379,8 @@ jobs:
             org.opencontainers.image.licenses=GPL-3.0
             org.opencontainers.image.title=ispyagentdvr-docker
             org.opencontainers.image.url=https://github.com/${{ github.repository }}
-            org.opencontainers.image.authors=MD. MEKAYEL ANIK <mekayel.anik@gmail.com>
-            org.opencontainers.image.vendor=MD. MEKAYEL ANIK
-            dev.mekayelanik.country-of-origin=Bangladesh
-            dev.mekayelanik.message=== Free Palestine ==
+            org.opencontainers.image.authors=iSpy (https://www.ispyconnect.com)
+            org.opencontainers.image.vendor=iSpy
           # Build arguments
           build-args: |
             BASE_IMAGE=${{ steps.prepare.outputs.base_image }}
@@ -1606,10 +1590,8 @@ jobs:
           ANNO_ARGS+=(--annotation "index:org.opencontainers.image.licenses=GPL-3.0")
           ANNO_ARGS+=(--annotation "index:org.opencontainers.image.title=ispyagentdvr-docker")
           ANNO_ARGS+=(--annotation "index:org.opencontainers.image.url=https://github.com/${{ github.repository }}")
-          ANNO_ARGS+=(--annotation "index:org.opencontainers.image.authors=MD. MEKAYEL ANIK <mekayel.anik@gmail.com>")
-          ANNO_ARGS+=(--annotation "index:org.opencontainers.image.vendor=MD. MEKAYEL ANIK")
-          ANNO_ARGS+=(--annotation "index:dev.mekayelanik.country-of-origin=Bangladesh")
-          ANNO_ARGS+=(--annotation "index:dev.mekayelanik.message=== Free Palestine ==")
+          ANNO_ARGS+=(--annotation "index:org.opencontainers.image.authors=iSpy (https://www.ispyconnect.com)")
+          ANNO_ARGS+=(--annotation "index:org.opencontainers.image.vendor=iSpy")
           echo "Creating multi-arch manifest for GHCR..."
           imagetools_create_rl "GHCR manifest" \
             "${ANNO_ARGS[@]}" \
@@ -1659,10 +1641,8 @@ jobs:
           ANNO_ARGS+=(--annotation "index:org.opencontainers.image.licenses=GPL-3.0")
           ANNO_ARGS+=(--annotation "index:org.opencontainers.image.title=ispyagentdvr-docker")
           ANNO_ARGS+=(--annotation "index:org.opencontainers.image.url=https://github.com/${{ github.repository }}")
-          ANNO_ARGS+=(--annotation "index:org.opencontainers.image.authors=MD. MEKAYEL ANIK <mekayel.anik@gmail.com>")
-          ANNO_ARGS+=(--annotation "index:org.opencontainers.image.vendor=MD. MEKAYEL ANIK")
-          ANNO_ARGS+=(--annotation "index:dev.mekayelanik.country-of-origin=Bangladesh")
-          ANNO_ARGS+=(--annotation "index:dev.mekayelanik.message=== Free Palestine ==")
+          ANNO_ARGS+=(--annotation "index:org.opencontainers.image.authors=iSpy (https://www.ispyconnect.com)")
+          ANNO_ARGS+=(--annotation "index:org.opencontainers.image.vendor=iSpy")
           echo "Creating multi-arch manifest for Docker Hub (sourcing from GHCR)..."
           imagetools_create_rl "Docker Hub manifest" \
             "${ANNO_ARGS[@]}" \

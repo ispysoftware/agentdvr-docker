@@ -30,13 +30,9 @@
     "automated",
     "github-actions"
   ],
-  "assignees": [
-    "mekayelanik"
-  ],
-  "reviewers": [
-    "mekayelanik"
-  ],
-  "timezone": "Asia/Dhaka",
+  "assignees": [],
+  "reviewers": [],
+  "timezone": "UTC",
   "schedule": [
     "before 6am on monday"
   ],

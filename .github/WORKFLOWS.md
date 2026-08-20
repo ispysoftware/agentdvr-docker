@@ -192,9 +192,7 @@ ZSTD compression is used for both layer compression and cache.
 
 | Option | Image |
 |--------|-------|
-| Default | `mekayelanik/ispyagentdvr-base-image:latest` |
-| trixie-slim-default-ffmpeg | `mekayelanik/ispyagentdvr-base-image:ispyagentdvr-trixie-slim-default-ffmpeg` |
-| bookworm-slim-vlc-jellyfin-ffmpeg | `mekayelanik/ispyagentdvr-base-image:ispyagentdvr-bookworm-slim-vlc-jellyfin-ffmpeg` |
+| Default | `ispysoftware/agentdvr-base-image:latest` |
 | custom | User-specified base image URL |
 
 ---
