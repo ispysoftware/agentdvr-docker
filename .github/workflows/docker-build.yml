@@ -56,11 +56,12 @@ on:
       # --- Version Build Options ---
       versions:
         description: |
-          Versions to build (build-versions) or promote (force-promote-latest)
+          Versions to build (build-versions) or promote (force-promote-latest).
+          Minimum buildable version: 7.9.4.0 (older releases lack bundled FFmpeg; see MIN_BUILD_VERSION)
           Examples:
-            - Single: 7.0.9.0
-            - Multiple: 7.0.5.0,7.0.6.0,7.0.7.0
-            - Range: 7.0.5.0-7.0.9.0
+            - Single: 7.9.4.0
+            - Multiple: 7.9.4.0,7.9.5.0
+            - Range: 7.9.4.0-7.9.6.0
         required: false
         type: string
         default: ''
