@@ -34,6 +34,15 @@ on:
     types: [Docker Build & Publish - Cron Scheduled, release-published]
 
   # =========================================================================
+  # DAILY SAFETY NET: catches anything the release-published dispatch missed
+  # (failed dispatch, token problems), ages :latest into :stable after 5 days,
+  # and picks up package-refresh rebuilds. GitHub cron can run minutes late;
+  # that's fine for a daily sweep.
+  # =========================================================================
+  schedule:
+    - cron: '17 3 * * *'
+
+  # =========================================================================
   # MANUAL TRIGGER: With detailed input options
   # =========================================================================
   workflow_dispatch:
@@ -330,7 +339,7 @@ jobs:
       - name: Set action type
         id: set-action
         run: |
-          if [ "${{ github.event_name }}" == "repository_dispatch" ]; then
+          if [ "${{ github.event_name }}" == "repository_dispatch" ] || [ "${{ github.event_name }}" == "schedule" ]; then
             echo "action=auto-check" >> $GITHUB_OUTPUT
             echo "Running scheduled auto-check (trigger: ${{ github.event_name }})..."
           else
