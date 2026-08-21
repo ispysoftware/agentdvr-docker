@@ -20,7 +20,7 @@
     <tr>
       <th align="center">Architecture</th>
       <th align="center">Available</th>
-      <th>Tag</th>
+      <th>Platform</th>
        <th>Status</th>
     </tr>
   </thead>
@@ -28,30 +28,30 @@
     <tr>
       <td align="center">x86-64</td>
       <td align="center">✅</td>
-      <td>amd64-&lt;version tag&gt;</td>
+      <td>linux/amd64</td>
       <td>Tested and working</td>
     </tr>
     <tr>
       <td align="center">arm64</td>
       <td align="center">✅</td>
-      <td>arm64v8-&lt;version tag&gt;</td>
+      <td>linux/arm64</td>
       <td>Tested and working</td>
     </tr>
     <tr>
       <td align="center">armhf</td>
       <td align="center">✅</td>
-      <td>arm32v7-&lt;version tag&gt;</td>
-      <td>Tested and working (4.8.2.0 and newer)</td>
+      <td>linux/arm/v7</td>
+      <td>Tested and working</td>
     </tr>
   </tbody>
 </table>
+<p>Every tag is a multi-arch manifest: pull <code>ispysoftware/agentdvr:latest</code> (or any other tag) and Docker selects the right image for the host automatically. There are no separate per-architecture tags.</p>
 <h2>Announcements</h2>
 <ul>
 <li><strong>Directory structure:</strong> the application directory has reverted to <code>/AgentDVR</code> (previously <code>/home/agentdvr/AgentDVR</code>). Make sure your volume mappings reflect this, particularly in unRAID, Synology and other GUI-based container managers.</li>
 <li><strong>Base image:</strong> the image is now based on Debian Trixie.</li>
 <li><strong>Image compression:</strong> images use ZSTD compression to reduce size and bandwidth. Version 6.5.7.0 and later require Docker Engine 23.0+ (or Podman Machine v5.1+).</li>
-<li><strong>WebRTC port range:</strong> the media port range has changed from <code>50000-50100</code> to <code>50000-50100</code>. Update the range in your Docker CLI command or Compose file accordingly.</li>
-<li><strong>armhf:</strong> for ARM 32-bit devices, use version 4.8.2.0 or newer.</li>
+<li><strong>FFmpeg:</strong> the image bundles an LGPL FFmpeg build. The optional GPL build (x264/x265 software encoders) can be enabled in Server Settings inside the app; it is downloaded to the config volume so it survives container recreation.</li>
 <li><strong>GPU acceleration:</strong> hardware-accelerated encode/decode requires version 5.3.5.0 or newer.</li>
 <li><strong>Beta images</strong> are for testing only and should not be used in production environments.</li>
 <li>Review the <a href="https://www.ispyconnect.com/producthistory?productid=27" rel="nofollow noopener">release history</a> before pinning older tags.</li>
@@ -69,9 +69,9 @@
   <tbody>
     <tr>
       <td align="center">stable</td>
-      <td align="center">✅</td>
+      <td align="center">⏳</td>
       <td>The most recent release that has remained current for at least 5 days</td>
-      <td>Recommended for production use</td>
+      <td>Recommended for production use. Published automatically once a release has been current for 5 days</td>
     </tr>
     <tr>
       <td align="center">latest</td>
@@ -92,13 +92,20 @@
       <td>Tested and working</td>
     </tr>
     <tr>
-      <td align="center">7.9.3.0-beta</td>
+      <td align="center">7.9.5.0-beta</td>
       <td align="center">⚠️</td>
-      <td>Beta release 7.9.3.0</td>
+      <td>Beta release 7.9.5.0</td>
       <td>For testing only. Back up your configuration first; not recommended for production use</td>
     </tr>
   </tbody>
 </table>
+<p>Pinned version tags are published from 7.9.4.0 onward (older releases are not built for this image). Each build also gets a dated tag, e.g. <code>7.9.5.0-beta-21082026</code>, so a specific build can be pinned.</p>
+<h2>Quick install</h2>
+<p>Interactive installers that check Docker, create the data folders, generate a <code>docker-compose.yml</code> and start the container:</p>
+<p><strong>Linux / macOS</strong></p>
+<pre><code>curl -sL "https://www.ispyconnect.com/docker/linux/install-agentdvr.sh" -o docker_agent.sh && bash docker_agent.sh; rm docker_agent.sh</code></pre>
+<p><strong>Windows (Docker Desktop)</strong>: download and run <a href="https://www.ispyconnect.com/docker/windows/agentdvr-docker-installer.ps1" rel="nofollow noopener">agentdvr-docker-installer.ps1</a> (signed; it requests elevation and can start Docker Desktop for you).</p>
+<p>Both installers offer the beta channel when a newer beta is available and otherwise use <code>latest</code>.</p>
 <h2>Running the image</h2>
 <h3>docker-compose (recommended, <a href="https://docs.docker.com/compose/" rel="nofollow noopener">docs</a>) </h3>
 <pre><code>---
@@ -227,7 +234,7 @@ services:
     - /dev/dri/card0:/dev/dri/card0
     - /dev/kfd:/dev/kfd</code></pre>
 <p><strong>docker cli</strong></p>
-<pre><code>--device /dev/dri/renderD128:/dev/dri/renderD128 --device /dev/dri:/dev/dri/card0 --device /dev/kfd:/dev/kfd</code></pre>
+<pre><code>--device /dev/dri/renderD128:/dev/dri/renderD128 --device /dev/dri/card0:/dev/dri/card0 --device /dev/kfd:/dev/kfd</code></pre>
 <h3>Intel GPUs and iGPUs</h3>
 <p>Add the following to your Compose file or CLI command respectively:</p>
 <p><strong>docker compose</strong></p>
@@ -259,7 +266,7 @@ services:
  done` 
   ispysoftware/agentdvr:latest</code></pre>
 <h2>Parameters</h2>
-<p>Parameters are separated by a colon and indicate <code>&lt;external&gt;:&lt;internal&gt;</code>. For example, <code>-p 8090:80</code> exposes port <code>80</code> inside the container on host port <code>8090</code>.</p>
+<p>Parameters are separated by a colon and indicate <code>&lt;external&gt;:&lt;internal&gt;</code>. For example, <code>-p 8091:8090</code> exposes port <code>8090</code> inside the container on host port <code>8091</code>.</p>
 <table>
   <thead>
     <tr>
@@ -425,6 +432,7 @@ mv /path/to/recordings/video /ispyagentdvr/media/old</code></pre>
 
 <p><strong>Version history</strong></p>
 <ul>
+<li><strong>7.9.4.0:</strong> First version published as the official <code>ispysoftware/agentdvr</code> image. FFmpeg 9 is bundled (LGPL build); the GPL build is an optional in-app download</li>
 <li><strong>7.2.0.0:</strong> Breaking: a new volume mapping is required for persistent AI model storage: <code>/AgentDVR/Media/Models</code></li>
 <li><strong>6.6.2.0:</strong> Breaking: directory structure reverted to <code>/AgentDVR</code> from <code>/home/agentdvr/AgentDVR</code>. Take particular care to apply this change in unRAID, Synology and other GUI-based container managers</li>
 <li><strong>6.6.2.0:</strong> Base image changed to Debian Trixie from Bookworm</li>
