@@ -50,7 +50,7 @@
 <li><strong>Directory structure:</strong> the application directory has reverted to <code>/AgentDVR</code> (previously <code>/home/agentdvr/AgentDVR</code>). Make sure your volume mappings reflect this, particularly in unRAID, Synology and other GUI-based container managers.</li>
 <li><strong>Base image:</strong> the image is now based on Debian Trixie.</li>
 <li><strong>Image compression:</strong> images use ZSTD compression to reduce size and bandwidth. Version 6.5.7.0 and later require Docker Engine 23.0+ (or Podman Machine v5.1+).</li>
-<li><strong>WebRTC port range:</strong> the media port range has changed from <code>50000-50010</code> to <code>50000-50100</code>. Update the range in your Docker CLI command or Compose file accordingly.</li>
+<li><strong>WebRTC port range:</strong> the media port range has changed from <code>50000-50100</code> to <code>50000-50100</code>. Update the range in your Docker CLI command or Compose file accordingly.</li>
 <li><strong>armhf:</strong> for ARM 32-bit devices, use version 4.8.2.0 or newer.</li>
 <li><strong>GPU acceleration:</strong> hardware-accelerated encode/decode requires version 5.3.5.0 or newer.</li>
 <li><strong>Beta images</strong> are for testing only and should not be used in production environments.</li>
