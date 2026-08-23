@@ -13,7 +13,7 @@
   <a href="https://github.com/ispysoftware/agentdvr-docker/issues"><img alt="GitHub Issues" src="https://img.shields.io/github/issues/ispysoftware/agentdvr-docker"></a>
   <a href="https://github.com/ispysoftware/agentdvr-docker/commits/main"><img alt="Last Commit" src="https://img.shields.io/github/last-commit/ispysoftware/agentdvr-docker.svg"></a>
 </p>
-<p>This official image is based on the community image originally created and maintained by <a href="https://github.com/MekayelAnik">MD. Mekayel Anik</a>, whose community build remains available at <a href="https://hub.docker.com/r/mekayelanik/ispyagentdvr">mekayelanik/ispyagentdvr</a>.</p>
+<p>This official image is based on the community image originally created by <a href="https://github.com/MekayelAnik">MD. Mekayel Anik</a>.</p>
 <h2>Supported architectures</h2>
 <table>
   <thead>
