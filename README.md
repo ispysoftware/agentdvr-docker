@@ -86,9 +86,9 @@
       <td>For testing only. Back up your configuration first; not recommended for production use</td>
     </tr>
     <tr>
-      <td align="center">8.0.3.0</td>
+      <td align="center">8.0.4.0</td>
       <td align="center">✅</td>
-      <td>Pinned release 8.0.3.0</td>
+      <td>Pinned release 8.0.4.0</td>
       <td>Tested and working</td>
     </tr>
     <tr>
