@@ -92,9 +92,9 @@
       <td>Tested and working</td>
     </tr>
     <tr>
-      <td align="center">7.9.5.0-beta</td>
+      <td align="center">8.0.9.0-beta</td>
       <td align="center">⚠️</td>
-      <td>Beta release 7.9.5.0</td>
+      <td>Beta release 8.0.9.0</td>
       <td>For testing only. Back up your configuration first; not recommended for production use</td>
     </tr>
   </tbody>
