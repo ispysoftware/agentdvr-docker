@@ -2486,3 +2486,104 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
           repository: ${{ env.DOCKERHUB_REPO }}
+
+  # ===========================================================================
+  # Job 11: Bump the Home Assistant app (ispysoftware/home-assistant-apps)
+  # ===========================================================================
+  # The app builds FROM ispysoftware/agentdvr:<version>, so its version must
+  # name a published tag. Runs only when a release reached :latest (never for
+  # beta-only publishes), checks the tag is on Docker Hub for amd64 and arm64,
+  # and never moves the app backwards. Needs secret HA_APPS_TOKEN: a
+  # fine-grained token with Contents read/write on home-assistant-apps only.
+  # Without it the job skips with a notice; it never fails the release.
+  update-home-assistant-app:
+    timeout-minutes: 15
+    name: Update Home Assistant app
+    needs: [check-releases, promote-image]
+    if: |
+      always() &&
+      needs.promote-image.result == 'success' &&
+      needs.check-releases.outputs.latest_version != '' &&
+      needs.check-releases.outputs.latest_is_beta != 'true'
+    runs-on: ${{ vars.ACTION_RUNNER_VERSION || 'ubuntu-latest' }}
+    steps:
+      - name: Check token
+        id: token
+        env:
+          HA_APPS_TOKEN: ${{ secrets.HA_APPS_TOKEN }}
+        run: |
+          if [ -z "$HA_APPS_TOKEN" ]; then
+            echo "::notice::HA_APPS_TOKEN is not set -- skipping the Home Assistant app bump"
+            echo "present=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "present=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Checkout home-assistant-apps
+        if: steps.token.outputs.present == 'true'
+        uses: actions/checkout@v7
+        with:
+          repository: ispysoftware/home-assistant-apps
+          ref: main
+          token: ${{ secrets.HA_APPS_TOKEN }}
+
+      - name: Bump app version
+        if: steps.token.outputs.present == 'true'
+        shell: bash
+        env:
+          VERSION: ${{ needs.check-releases.outputs.latest_version }}
+        run: |
+          set -euo pipefail
+
+          if ! [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "::warning::Unexpected version '$VERSION' -- not bumping the Home Assistant app"
+            exit 0
+          fi
+
+          CURRENT=$(sed -nE 's/^version: "([0-9.]+)"$/\1/p' agentdvr/config.yaml)
+          if [ -z "$CURRENT" ]; then
+            echo "::warning::Could not read version from agentdvr/config.yaml -- not bumping"
+            exit 0
+          fi
+          if [ "$CURRENT" == "$VERSION" ]; then
+            echo "Home Assistant app already at $VERSION"
+            exit 0
+          fi
+          if [ "$(printf '%s\n%s\n' "$CURRENT" "$VERSION" | sort -V | tail -n1)" != "$VERSION" ]; then
+            echo "Home Assistant app is at $CURRENT, newer than $VERSION -- leaving it"
+            exit 0
+          fi
+
+          # The app's Dockerfile pulls this tag on the user's device: it must exist for both arches
+          ARCHES=$(curl -fsSL --retry 3 "https://hub.docker.com/v2/repositories/${{ env.DOCKERHUB_REPO }}/tags/${VERSION}" \
+                   | jq -r '[.images[].architecture] | unique | join(",")' || true)
+          if [[ ",$ARCHES," != *",amd64,"* || ",$ARCHES," != *",arm64,"* ]]; then
+            echo "::warning::${{ env.DOCKERHUB_REPO }}:${VERSION} not on Docker Hub for amd64+arm64 (found: '${ARCHES}') -- not bumping"
+            exit 0
+          fi
+
+          sed -i -E "s/^version: \"[0-9.]+\"$/version: \"${VERSION}\"/" agentdvr/config.yaml
+          sed -i -E "s/^ARG BUILD_VERSION=[0-9.]+$/ARG BUILD_VERSION=${VERSION}/" agentdvr/Dockerfile
+          # Home Assistant shows this file in its update dialog
+          printf '%s\n' \
+            "# Changelog" \
+            "" \
+            "## ${VERSION}" \
+            "" \
+            "Release notes: https://www.ispyconnect.com/producthistory?productid=27" \
+            > agentdvr/CHANGELOG.md
+
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add agentdvr/config.yaml agentdvr/Dockerfile agentdvr/CHANGELOG.md
+          git commit -m "Agent DVR ${VERSION}"
+
+          for attempt in 1 2 3; do
+            if git pull --rebase origin main && git push origin main; then
+              echo "Home Assistant app bumped $CURRENT -> $VERSION"
+              exit 0
+            fi
+            git rebase --abort 2>/dev/null || true
+            sleep 3
+          done
+          echo "::warning::Could not push the Home Assistant app bump after retries"

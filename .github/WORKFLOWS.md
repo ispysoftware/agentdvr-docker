@@ -24,7 +24,7 @@ This repository uses a unified GitHub Actions workflow for:
 
 **File:** `.github/workflows/docker-build.yml`
 
-### Pipeline Jobs (11 total)
+### Pipeline Jobs (12 total)
 
 | # | Job | Purpose |
 |---|-----|---------|
@@ -39,6 +39,7 @@ This repository uses a unified GitHub Actions workflow for:
 | 8 | `update-state` | Writes `last-built-version` and `latest-version-since` to orphan branch |
 | 9 | `update-readme-version` | Auto-updates version in README after promote |
 | 10 | `update-dockerhub-description` | Syncs README to Docker Hub description |
+| 11 | `update-home-assistant-app` | Bumps the app version in `ispysoftware/home-assistant-apps` after a release reaches `:latest` |
 
 ### Features
 
@@ -70,6 +71,7 @@ Configure these secrets in your repository settings:
 |--------|-------------|----------|
 | `DOCKERHUB_USERNAME` | Your Docker Hub username | Yes |
 | `DOCKERHUB_TOKEN` | Docker Hub access token (Read, Write, Delete + Admin for description sync) | Yes |
+| `HA_APPS_TOKEN` | Fine-grained GitHub token with Contents read/write on `ispysoftware/home-assistant-apps` only, for the Home Assistant app bump. Without it that job skips with a notice | No |
 
 > **Note:** `GITHUB_TOKEN` is automatically provided and has `packages:write` scope for ghcr.io.
 > **Note:** Docker Hub description sync requires Admin or Read & Write scope on the token. Without it, the sync step silently skips (non-blocking).
