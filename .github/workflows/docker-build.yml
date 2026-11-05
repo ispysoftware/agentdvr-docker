@@ -2564,6 +2564,16 @@ jobs:
 
           sed -i -E "s/^version: \"[0-9.]+\"$/version: \"${VERSION}\"/" agentdvr/config.yaml
           sed -i -E "s/^ARG BUILD_VERSION=[0-9.]+$/ARG BUILD_VERSION=${VERSION}/" agentdvr/Dockerfile
+          # A pre-release test overlay (a local build fetched from the dev PC) fails every
+          # user's install once it ships: the release replaces it, so drop it here.
+          if grep -q '^# BEGIN LOCAL TEST BUILD' agentdvr/Dockerfile; then
+            sed -i '/^# BEGIN LOCAL TEST BUILD/,/^# END LOCAL TEST BUILD/d' agentdvr/Dockerfile
+            echo "Removed the local test build overlay from agentdvr/Dockerfile"
+          fi
+          if grep -q 'TEST_BUILD_URL' agentdvr/Dockerfile; then
+            echo "::error::agentdvr/Dockerfile still fetches a local test build -- not bumping"
+            exit 1
+          fi
           # Home Assistant shows this file in its update dialog
           printf '%s\n' \
             "# Changelog" \
