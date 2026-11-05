@@ -2580,7 +2580,7 @@ jobs:
             "" \
             "## ${VERSION}" \
             "" \
-            "Release notes: https://www.ispyconnect.com/producthistory?productid=27" \
+            "Release notes: https://www.ispyconnect.com/updates" \
             > agentdvr/CHANGELOG.md
 
           git config user.name "github-actions[bot]"

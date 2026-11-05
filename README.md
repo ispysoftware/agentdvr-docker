@@ -54,7 +54,7 @@
 <li><strong>FFmpeg:</strong> the image bundles an LGPL FFmpeg build. The optional GPL build (x264/x265 software encoders) can be enabled in Server Settings inside the app; it is downloaded to the config volume so it survives container recreation.</li>
 <li><strong>GPU acceleration:</strong> hardware-accelerated encode/decode requires version 5.3.5.0 or newer.</li>
 <li><strong>Beta images</strong> are for testing only and should not be used in production environments.</li>
-<li>Review the <a href="https://www.ispyconnect.com/producthistory?productid=27" rel="nofollow noopener">release history</a> before pinning older tags.</li>
+<li>Review the <a href="https://www.ispyconnect.com/updates" rel="nofollow noopener">release history</a> before pinning older tags.</li>
 </ul>
 
 <table>
