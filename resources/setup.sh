@@ -177,10 +177,6 @@ if [ ! -d "$AGENT_DIR/sounds" ]; then
     echo "Creating directory: $AGENT_DIR/sounds"
     mkdir -p "$AGENT_DIR/sounds" || { echo "Failed to create sounds directory"; exit 1; }
 fi
-if [ ! -d "$AGENT_DIR/Masks" ]; then
-    echo "Creating directory: $AGENT_DIR/Masks"
-    mkdir -p "$AGENT_DIR/Masks" || { echo "Failed to create Masks directory"; exit 1; }
-fi
 
 if [ ! -f "$SESSION_LOG" ]; then
     echo "Creating Session log: $SESSION_LOG"
@@ -200,11 +196,9 @@ fi
 #####    Keeping emergency backward compatibility for directories    #####
 sudo -u agentdvr ln -sfv "$AGENT_DIR/Media" /agent/ || { echo "Failed to create Media link"; exit 1; }
 sudo -u agentdvr ln -sfv "$AGENT_DIR/Commands" /agent/ || { echo "Failed to create Commands link"; exit 1; }
-sudo -u agentdvr ln -sfv "$AGENT_DIR/Masks" /agent/ || { echo "Failed to create Media link"; exit 1; }
 sudo -u agentdvr ln -sfv "$AGENT_DIR/sounds" /agent/ || { echo "Failed to create Commands link"; exit 1; }
 sudo -u agentdvr ln -sfv "$AGENT_DIR/Media" /home/agentdvr/AgentDVR/ || { echo "Failed to create Media link"; exit 1; }
 sudo -u agentdvr ln -sfv "$AGENT_DIR/Commands" /home/agentdvr/AgentDVR/ || { echo "Failed to create Commands link"; exit 1; }
-sudo -u agentdvr ln -sfv "$AGENT_DIR/Masks" /home/agentdvr/AgentDVR/ || { echo "Failed to create Media link"; exit 1; }
 sudo -u agentdvr ln -sfv "$AGENT_DIR/sounds" /home/agentdvr/AgentDVR/ || { echo "Failed to create Commands link"; exit 1; }
 
 

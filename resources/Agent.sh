@@ -51,7 +51,6 @@ REQUIRED_DIRS=(
     "/AgentDVR/Media/XML"
     "/AgentDVR/Media/WebServerRoot/Media"
     "/AgentDVR/Commands"
-    "/AgentDVR/Masks"
     "/AgentDVR/sounds"
     "/AgentDVR/Media/Models"
 )
@@ -60,7 +59,6 @@ AGENT_BINARY="/AgentDVR/Agent"
 CONFIG_DIR="/AgentDVR/Media/XML"
 COMMANDS_DIR="/AgentDVR/Commands"
 SOUNDS_DIR="/AgentDVR/sounds"
-MASKS_DIR="/AgentDVR/Masks"
 FIRST_RUN="/AgentDVR/FirstRun"
 CONTENT_DIR="/AgentDVR/Content"
 MODEL_DIR="/AgentDVR/Media/Models"
@@ -110,7 +108,7 @@ migrate_content_directories() {
 
         target_uid="$PUID"
         target_gid="${PGID:-$PUID}"
-        dirs=("$COMMANDS_DIR" "$SOUNDS_DIR" "$MASKS_DIR" "$CONFIG_DIR" "$MODEL_DIR")
+        dirs=("$COMMANDS_DIR" "$SOUNDS_DIR" "$CONFIG_DIR" "$MODEL_DIR")
         printf "${LITE_GREEN}Changing directory permissions for:\n${NC}"
         for dir_path in "${dirs[@]}"; do
             dir_stats=$(stat -c '%u %g' "$dir_path")
@@ -159,7 +157,7 @@ ensure_directories() {
 
         # Set permissions if running as root
         if [[ $(id -u) -eq 0 ]]; then
-            if [[ "$dir" == "$COMMANDS_DIR" || "$dir" == "$SOUNDS_DIR" || "$dir" == "$MASKS_DIR" ]] ||
+            if [[ "$dir" == "$COMMANDS_DIR" || "$dir" == "$SOUNDS_DIR" ]] ||
                [[ "$dir" == "$CONFIG_DIR" ]] || [[ "$dir" == "$MODEL_DIR" ]] || [[ "$dir" == "$SESSION_LOG" ]] ; then
                 continue
             fi
